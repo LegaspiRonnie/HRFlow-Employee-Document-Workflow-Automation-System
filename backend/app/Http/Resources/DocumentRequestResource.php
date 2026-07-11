@@ -19,6 +19,8 @@ class DocumentRequestResource extends JsonResource
             'document_type' => new DocumentTypeResource($this->whenLoaded('documentType')),
             // requester context — loaded on manager/HR queues
             'employee' => new EmployeeResource($this->whenLoaded('employee')),
+            // decision trail, chronological
+            'approvals' => RequestApprovalResource::collection($this->whenLoaded('approvals')),
             'created_at' => $this->resource->created_at->toIso8601String(),
             'updated_at' => $this->resource->updated_at->toIso8601String(),
         ];

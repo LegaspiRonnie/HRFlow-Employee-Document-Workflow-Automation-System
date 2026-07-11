@@ -5,6 +5,8 @@ import AppLayout from './layouts/AppLayout'
 import DashboardPage from './pages/DashboardPage'
 import LoginPage from './pages/LoginPage'
 import ProfilePage from './pages/ProfilePage'
+import ManagerQueuePage from './pages/manager/ManagerQueuePage'
+import TeamHistoryPage from './pages/manager/TeamHistoryPage'
 import MyRequestsPage from './pages/requests/MyRequestsPage'
 import RequestFormPage from './pages/requests/RequestFormPage'
 import DepartmentsPage from './pages/hr/DepartmentsPage'
@@ -37,7 +39,8 @@ function App() {
 
           {/* Manager area (HR admins may also review team requests) */}
           <Route element={<RoleRoute roles={['manager', 'hr_admin']} />}>
-            {/* /manager/* pages register here in Feature 7 */}
+            <Route path="/manager/queue" element={<ManagerQueuePage />} />
+            <Route path="/manager/history" element={<TeamHistoryPage />} />
           </Route>
 
           {/* HR-only area */}
