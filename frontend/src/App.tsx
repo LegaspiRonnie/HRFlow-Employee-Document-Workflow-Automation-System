@@ -15,6 +15,7 @@ import DepartmentsPage from './pages/hr/DepartmentsPage'
 import EmployeesPage from './pages/hr/EmployeesPage'
 import HrVerificationsPage from './pages/hr/HrVerificationsPage'
 import PositionsPage from './pages/hr/PositionsPage'
+import ReportsPage from './pages/hr/ReportsPage'
 import TemplatesPage from './pages/hr/TemplatesPage'
 
 /**
@@ -55,6 +56,7 @@ function App() {
             <Route path="/hr/departments" element={<DepartmentsPage />} />
             <Route path="/hr/positions" element={<PositionsPage />} />
             <Route path="/hr/templates" element={<TemplatesPage />} />
+            <Route path="/hr/reports" element={<ReportsPage />} />
           </Route>
         </Route>
       </Route>

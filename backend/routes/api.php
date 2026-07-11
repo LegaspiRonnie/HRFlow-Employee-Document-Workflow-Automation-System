@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\DepartmentController;
 use App\Http\Controllers\Api\V1\DocumentRequestController;
 use App\Http\Controllers\Api\V1\DocumentTypeController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\Api\V1\ManagerApprovalController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\PositionController;
 use App\Http\Controllers\Api\V1\ProfileController;
+use App\Http\Controllers\Api\V1\ReportController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -55,6 +57,9 @@ Route::prefix('v1')->group(function () {
         // ── Document download (Feature 9) — owner or HR (checked in controller) ──
         Route::get('/documents/{generatedDocument}/download', [GeneratedDocumentController::class, 'download']);
 
+        // ── Role-aware dashboard stats (Feature 11) ──
+        Route::get('/dashboard', DashboardController::class);
+
         // ── Notification center (Feature 10) — any authenticated role ──
         Route::get('/notifications', [NotificationController::class, 'index']);
         Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead']);
@@ -81,6 +86,7 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('employees', EmployeeController::class);
             Route::get('/document-templates', [DocumentTypeController::class, 'templates']);
             Route::put('/document-templates/{template}', [DocumentTypeController::class, 'updateTemplate']);
+            Route::get('/hr/reports/requests.xlsx', [ReportController::class, 'requests']);
         });
     });
 });
