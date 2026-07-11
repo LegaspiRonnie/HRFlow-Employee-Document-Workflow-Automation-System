@@ -8,6 +8,7 @@ import ProfilePage from './pages/ProfilePage'
 import DepartmentsPage from './pages/hr/DepartmentsPage'
 import EmployeesPage from './pages/hr/EmployeesPage'
 import PositionsPage from './pages/hr/PositionsPage'
+import TemplatesPage from './pages/hr/TemplatesPage'
 
 /**
  * Central route table. Structure:
@@ -40,6 +41,7 @@ function App() {
             <Route path="/hr/employees" element={<EmployeesPage />} />
             <Route path="/hr/departments" element={<DepartmentsPage />} />
             <Route path="/hr/positions" element={<PositionsPage />} />
+            <Route path="/hr/templates" element={<TemplatesPage />} />
           </Route>
         </Route>
       </Route>
