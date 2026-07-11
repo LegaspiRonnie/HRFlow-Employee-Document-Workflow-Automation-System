@@ -7,6 +7,7 @@ use App\Http\Requests\Documents\UpdateTemplateRequest;
 use App\Http\Resources\DocumentTypeResource;
 use App\Models\DocumentTemplate;
 use App\Models\DocumentType;
+use App\Services\AuditLogger;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class DocumentTypeController extends Controller
@@ -37,6 +38,7 @@ class DocumentTypeController extends Controller
         DocumentTemplate $template,
     ): DocumentTypeResource {
         $template->update($request->validated());
+        AuditLogger::log('template.updated', $template, ['type' => $template->documentType->name]);
 
         return new DocumentTypeResource($template->documentType->load('template'));
     }

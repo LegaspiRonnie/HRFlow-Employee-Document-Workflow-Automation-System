@@ -8,6 +8,7 @@ use App\Http\Requests\Documents\DecisionRequest;
 use App\Http\Resources\DocumentRequestResource;
 use App\Models\DocumentRequest;
 use App\Notifications\RequestStageUpdated;
+use App\Services\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
@@ -80,6 +81,12 @@ class ManagerApprovalController extends Controller
                 'status' => $approve ? RequestStatus::PendingHr : RequestStatus::ManagerRejected,
             ]);
         });
+
+        AuditLogger::log(
+            $approve ? 'request.manager_approved' : 'request.manager_rejected',
+            $documentRequest,
+            ['comments' => $request->validated('comments')],
+        );
 
         // tell the employee their request moved (or bounced)
         $documentRequest->employee->user->notify(new RequestStageUpdated(

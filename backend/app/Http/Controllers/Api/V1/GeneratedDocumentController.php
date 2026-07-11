@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\GeneratedDocument;
+use App\Services\AuditLogger;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -23,6 +24,10 @@ class GeneratedDocumentController extends Controller
 
         abort_unless($user->isHrAdmin() || $user->id === $ownerUserId, 403);
         abort_unless(Storage::disk('local')->exists($generatedDocument->file_path), 404, 'File missing from storage.');
+
+        AuditLogger::log('document.downloaded', $generatedDocument, [
+            'number' => $generatedDocument->document_number,
+        ]);
 
         $filename = sprintf(
             '%s-v%d.pdf',

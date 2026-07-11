@@ -8,6 +8,7 @@ use App\Http\Requests\Documents\StoreDocumentRequestRequest;
 use App\Http\Resources\DocumentRequestResource;
 use App\Models\DocumentRequest;
 use App\Notifications\RequestSubmitted;
+use App\Services\AuditLogger;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -53,6 +54,8 @@ class DocumentRequestController extends Controller
             // serializes correctly in the 201 response
             'status' => RequestStatus::PendingManager,
         ]);
+
+        AuditLogger::log('request.submitted', $documentRequest);
 
         // ping the approving manager that their queue has a new item
         $employee->manager?->notify(

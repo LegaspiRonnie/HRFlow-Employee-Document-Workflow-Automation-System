@@ -9,6 +9,7 @@ use App\Http\Resources\DocumentRequestResource;
 use App\Models\DocumentRequest;
 use App\Notifications\DocumentReady;
 use App\Notifications\RequestStageUpdated;
+use App\Services\AuditLogger;
 use App\Services\DocumentGeneratorService;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
@@ -73,6 +74,12 @@ class HrVerificationController extends Controller
             return $verify ? $this->generator->generate($documentRequest, $request->user()) : null;
         });
 
+        AuditLogger::log(
+            $verify ? 'request.hr_verified' : 'request.hr_rejected',
+            $documentRequest,
+            ['comments' => $request->validated('comments')],
+        );
+
         // notify the employee: stage update always, plus the PDF itself on verify
         $owner = $documentRequest->employee->user;
         $owner->notify(new RequestStageUpdated(
@@ -101,7 +108,8 @@ class HrVerificationController extends Controller
             'Only completed requests can be regenerated.',
         );
 
-        $this->generator->generate($documentRequest, $request->user());
+        $generated = $this->generator->generate($documentRequest, $request->user());
+        AuditLogger::log('document.regenerated', $generated, ['version' => $generated->version]);
 
         return new DocumentRequestResource($documentRequest->fresh(self::RELATIONS));
     }

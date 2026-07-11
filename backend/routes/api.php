@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AuditLogController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\DepartmentController;
@@ -87,6 +88,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/document-templates', [DocumentTypeController::class, 'templates']);
             Route::put('/document-templates/{template}', [DocumentTypeController::class, 'updateTemplate']);
             Route::get('/hr/reports/requests.xlsx', [ReportController::class, 'requests']);
+            Route::get('/hr/audit-logs', [AuditLogController::class, 'index']);
         });
     });
 });
