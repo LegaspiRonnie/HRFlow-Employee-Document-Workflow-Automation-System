@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\DepartmentController;
+use App\Http\Controllers\Api\V1\DocumentRequestController;
 use App\Http\Controllers\Api\V1\DocumentTypeController;
 use App\Http\Controllers\Api\V1\EmployeeController;
 use App\Http\Controllers\Api\V1\HealthController;
@@ -37,6 +38,11 @@ Route::prefix('v1')->group(function () {
 
         // ── Document catalog (Feature 5) — all roles, for the request form ──
         Route::get('/document-types', [DocumentTypeController::class, 'index']);
+
+        // ── Own document requests (Feature 6) — any authenticated role ──
+        Route::get('/requests', [DocumentRequestController::class, 'index']);
+        Route::post('/requests', [DocumentRequestController::class, 'store']);
+        Route::get('/requests/{documentRequest}', [DocumentRequestController::class, 'show']);
 
         // ── HR-admin-only management (Features 3-4) ──
         Route::middleware('role:hr_admin')->group(function () {

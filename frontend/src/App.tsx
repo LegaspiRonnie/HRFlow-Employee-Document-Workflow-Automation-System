@@ -5,6 +5,8 @@ import AppLayout from './layouts/AppLayout'
 import DashboardPage from './pages/DashboardPage'
 import LoginPage from './pages/LoginPage'
 import ProfilePage from './pages/ProfilePage'
+import MyRequestsPage from './pages/requests/MyRequestsPage'
+import RequestFormPage from './pages/requests/RequestFormPage'
 import DepartmentsPage from './pages/hr/DepartmentsPage'
 import EmployeesPage from './pages/hr/EmployeesPage'
 import PositionsPage from './pages/hr/PositionsPage'
@@ -30,6 +32,8 @@ function App() {
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/requests" element={<MyRequestsPage />} />
+          <Route path="/requests/new" element={<RequestFormPage />} />
 
           {/* Manager area (HR admins may also review team requests) */}
           <Route element={<RoleRoute roles={['manager', 'hr_admin']} />}>
