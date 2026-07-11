@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\DepartmentController;
+use App\Http\Controllers\Api\V1\DocumentTypeController;
 use App\Http\Controllers\Api\V1\EmployeeController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\PositionController;
@@ -34,12 +35,17 @@ Route::prefix('v1')->group(function () {
         Route::get('/profile', [ProfileController::class, 'show']);
         Route::put('/profile', [ProfileController::class, 'update']);
 
+        // ── Document catalog (Feature 5) — all roles, for the request form ──
+        Route::get('/document-types', [DocumentTypeController::class, 'index']);
+
         // ── HR-admin-only management (Features 3-4) ──
         Route::middleware('role:hr_admin')->group(function () {
             Route::apiResource('departments', DepartmentController::class);
             Route::apiResource('positions', PositionController::class);
             Route::get('/employees/managers', [EmployeeController::class, 'managers']);
             Route::apiResource('employees', EmployeeController::class);
+            Route::get('/document-templates', [DocumentTypeController::class, 'templates']);
+            Route::put('/document-templates/{template}', [DocumentTypeController::class, 'updateTemplate']);
         });
     });
 });
