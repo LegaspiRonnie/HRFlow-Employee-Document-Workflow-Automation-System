@@ -4,6 +4,8 @@ import RoleRoute from './components/RoleRoute'
 import AppLayout from './layouts/AppLayout'
 import DashboardPage from './pages/DashboardPage'
 import LoginPage from './pages/LoginPage'
+import DepartmentsPage from './pages/hr/DepartmentsPage'
+import PositionsPage from './pages/hr/PositionsPage'
 
 /**
  * Central route table. Structure:
@@ -32,7 +34,8 @@ function App() {
 
           {/* HR-only area */}
           <Route element={<RoleRoute roles={['hr_admin']} />}>
-            {/* /hr/* pages register here in Features 3-5, 8, 11-12 */}
+            <Route path="/hr/departments" element={<DepartmentsPage />} />
+            <Route path="/hr/positions" element={<PositionsPage />} />
           </Route>
         </Route>
       </Route>
