@@ -5,6 +5,7 @@ import PageHeader from '../../components/PageHeader'
 import StatusBadge from '../../components/StatusBadge'
 import WorkflowSteps from '../../components/WorkflowSteps'
 import { getApiError } from '../../lib/errors'
+import * as documentsApi from '../../services/documents'
 import * as requestsApi from '../../services/requests'
 import type { DocumentRequest } from '../../types/requests'
 
@@ -25,6 +26,18 @@ export default function MyRequestsPage() {
       .catch((e) => setPageError(getApiError(e)))
       .finally(() => setLoading(false))
   }, [])
+
+  const handleDownload = async (r: DocumentRequest) => {
+    if (!r.generated_document) return
+    try {
+      await documentsApi.downloadDocument(
+        r.generated_document.id,
+        `${r.generated_document.document_number}.pdf`,
+      )
+    } catch (err) {
+      window.alert(getApiError(err))
+    }
+  }
 
   return (
     <div>
@@ -75,7 +88,15 @@ export default function MyRequestsPage() {
                 <td className="px-4 py-3 max-w-56 truncate text-slate-500" title={r.purpose}>{r.purpose}</td>
                 <td className="px-4 py-3"><StatusBadge status={r.status} label={r.status_label} /></td>
                 <td className="px-4 py-3 text-slate-500">{new Date(r.created_at).toLocaleDateString()}</td>
-                <td className="px-4 py-3 text-right">
+                <td className="px-4 py-3 text-right space-x-3 whitespace-nowrap">
+                  {r.generated_document && (
+                    <button
+                      onClick={() => handleDownload(r)}
+                      className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700"
+                    >
+                      Download PDF
+                    </button>
+                  )}
                   <button onClick={() => setSelected(r)} className="text-indigo-600 hover:underline">Details</button>
                 </td>
               </tr>
@@ -114,6 +135,23 @@ export default function MyRequestsPage() {
                     </li>
                   ))}
                 </ul>
+              </div>
+            )}
+
+            {selected.generated_document && (
+              <div className="rounded-lg bg-green-50 p-3 text-sm">
+                <p className="font-medium text-green-800">
+                  Document {selected.generated_document.document_number} (v{selected.generated_document.version}) is ready
+                </p>
+                <p className="text-xs text-green-600">
+                  Valid until {selected.generated_document.expires_at ?? '—'}
+                </p>
+                <button
+                  onClick={() => handleDownload(selected)}
+                  className="mt-2 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700"
+                >
+                  Download PDF
+                </button>
               </div>
             )}
 

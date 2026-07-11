@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\DepartmentController;
 use App\Http\Controllers\Api\V1\DocumentRequestController;
 use App\Http\Controllers\Api\V1\DocumentTypeController;
 use App\Http\Controllers\Api\V1\EmployeeController;
+use App\Http\Controllers\Api\V1\GeneratedDocumentController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\HrVerificationController;
 use App\Http\Controllers\Api\V1\ManagerApprovalController;
@@ -24,6 +25,10 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function () {
     // Public — no auth required
     Route::get('/health', HealthController::class);
+
+    // QR verification (Feature 9) — public by design, throttled
+    Route::get('/verify/{token}', [GeneratedDocumentController::class, 'verify'])
+        ->middleware('throttle:30,1');
 
     // Auth (Feature 1) — login is throttled to 5 attempts/min per IP
     Route::post('/auth/login', [AuthController::class, 'login'])
@@ -46,6 +51,9 @@ Route::prefix('v1')->group(function () {
         Route::post('/requests', [DocumentRequestController::class, 'store']);
         Route::get('/requests/{documentRequest}', [DocumentRequestController::class, 'show']);
 
+        // ── Document download (Feature 9) — owner or HR (checked in controller) ──
+        Route::get('/documents/{generatedDocument}/download', [GeneratedDocumentController::class, 'download']);
+
         // ── Manager review stage (Feature 7) ──
         Route::middleware('role:manager,hr_admin')->prefix('manager')->group(function () {
             Route::get('/queue', [ManagerApprovalController::class, 'queue']);
@@ -59,6 +67,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/hr/verifications', [HrVerificationController::class, 'queue']);
             Route::get('/hr/requests', [HrVerificationController::class, 'history']);
             Route::post('/hr/requests/{documentRequest}/decision', [HrVerificationController::class, 'decide']);
+            Route::post('/hr/requests/{documentRequest}/regenerate', [HrVerificationController::class, 'regenerate']);
 
             Route::apiResource('departments', DepartmentController::class);
             Route::apiResource('positions', PositionController::class);
