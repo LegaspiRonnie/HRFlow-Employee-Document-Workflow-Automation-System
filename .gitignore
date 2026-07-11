@@ -1,0 +1,6 @@
+# OS / editor noise (backend/ and frontend/ carry their own scaffold .gitignore files)
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/
