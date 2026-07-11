@@ -11,6 +11,7 @@ import MyRequestsPage from './pages/requests/MyRequestsPage'
 import RequestFormPage from './pages/requests/RequestFormPage'
 import DepartmentsPage from './pages/hr/DepartmentsPage'
 import EmployeesPage from './pages/hr/EmployeesPage'
+import HrVerificationsPage from './pages/hr/HrVerificationsPage'
 import PositionsPage from './pages/hr/PositionsPage'
 import TemplatesPage from './pages/hr/TemplatesPage'
 
@@ -45,6 +46,7 @@ function App() {
 
           {/* HR-only area */}
           <Route element={<RoleRoute roles={['hr_admin']} />}>
+            <Route path="/hr/verifications" element={<HrVerificationsPage />} />
             <Route path="/hr/employees" element={<EmployeesPage />} />
             <Route path="/hr/departments" element={<DepartmentsPage />} />
             <Route path="/hr/positions" element={<PositionsPage />} />
