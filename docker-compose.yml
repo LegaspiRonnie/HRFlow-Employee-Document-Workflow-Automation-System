@@ -1,0 +1,69 @@
+# HRFlow full stack: MySQL + PHP-FPM API + queue worker + scheduler + nginx (SPA + proxy)
+# First run:
+#   cp backend/.env.docker backend/.env.docker.local   (optional overrides)
+#   docker compose up -d --build
+#   docker compose exec backend php artisan key:generate --force
+#   docker compose exec backend php artisan migrate --seed
+# Then open http://localhost:8080
+
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: hrflow
+      MYSQL_USER: hrflow
+      MYSQL_PASSWORD: hrflow_secret
+      MYSQL_ROOT_PASSWORD: root_secret
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uhrflow", "-phrflow_secret"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build: ./backend
+    env_file: ./backend/.env.docker
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - backend-storage:/var/www/html/storage
+
+  # Same image, different command: delivers queued mail/notifications
+  queue:
+    build: ./backend
+    command: php artisan queue:work --tries=3 --sleep=3
+    env_file: ./backend/.env.docker
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - backend-storage:/var/www/html/storage
+    restart: unless-stopped
+
+  # Same image again: fires the daily expiration-reminder command
+  scheduler:
+    build: ./backend
+    command: php artisan schedule:work
+    env_file: ./backend/.env.docker
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - backend-storage:/var/www/html/storage
+    restart: unless-stopped
+
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  mysql-data:
+  backend-storage:
