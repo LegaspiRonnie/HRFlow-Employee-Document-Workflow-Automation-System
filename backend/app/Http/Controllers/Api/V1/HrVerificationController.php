@@ -1,0 +1,67 @@
+<?php
+
+namespace App\Http\Controllers\Api\V1;
+
+use App\Enums\RequestStatus;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Documents\DecisionRequest;
+use App\Http\Resources\DocumentRequestResource;
+use App\Models\DocumentRequest;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\DB;
+
+/**
+ * HR verification — the second and final approval stage. HR sees every
+ * manager-approved request company-wide (no team scoping).
+ * Verifying completes the request; Feature 9 hooks PDF generation here.
+ */
+class HrVerificationController extends Controller
+{
+    private const RELATIONS = ['documentType', 'employee.user', 'employee.department', 'employee.position', 'approvals.approver'];
+
+    /** GET /hr/verifications — manager-approved requests awaiting HR. */
+    public function queue(): AnonymousResourceCollection
+    {
+        return DocumentRequestResource::collection(
+            DocumentRequest::where('status', RequestStatus::PendingHr)
+                ->with(self::RELATIONS)
+                ->oldest()
+                ->get(),
+        );
+    }
+
+    /** GET /hr/requests — company-wide request monitor, newest first. */
+    public function history(): AnonymousResourceCollection
+    {
+        return DocumentRequestResource::collection(
+            DocumentRequest::with(self::RELATIONS)->latest()->get(),
+        );
+    }
+
+    /** POST /hr/requests/{documentRequest}/decision — verify or reject. */
+    public function decide(DecisionRequest $request, DocumentRequest $documentRequest): DocumentRequestResource
+    {
+        abort_unless(
+            $documentRequest->status === RequestStatus::PendingHr,
+            409,
+            'This request is not awaiting HR verification.',
+        );
+
+        $verify = $request->validated('action') === 'approve';
+
+        DB::transaction(function () use ($request, $documentRequest, $verify) {
+            $documentRequest->approvals()->create([
+                'approver_id' => $request->user()->id,
+                'stage' => 'hr',
+                'action' => $verify ? 'approved' : 'rejected',
+                'comments' => $request->validated('comments'),
+            ]);
+
+            $documentRequest->update([
+                'status' => $verify ? RequestStatus::Completed : RequestStatus::HrRejected,
+            ]);
+        });
+
+        return new DocumentRequestResource($documentRequest->fresh(self::RELATIONS));
+    }
+}

@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\DocumentRequestController;
 use App\Http\Controllers\Api\V1\DocumentTypeController;
 use App\Http\Controllers\Api\V1\EmployeeController;
 use App\Http\Controllers\Api\V1\HealthController;
+use App\Http\Controllers\Api\V1\HrVerificationController;
 use App\Http\Controllers\Api\V1\ManagerApprovalController;
 use App\Http\Controllers\Api\V1\PositionController;
 use App\Http\Controllers\Api\V1\ProfileController;
@@ -52,8 +53,13 @@ Route::prefix('v1')->group(function () {
             Route::post('/requests/{documentRequest}/decision', [ManagerApprovalController::class, 'decide']);
         });
 
-        // ── HR-admin-only management (Features 3-4) ──
+        // ── HR-admin-only management (Features 3-5, 8) ──
         Route::middleware('role:hr_admin')->group(function () {
+            // HR verification stage (Feature 8)
+            Route::get('/hr/verifications', [HrVerificationController::class, 'queue']);
+            Route::get('/hr/requests', [HrVerificationController::class, 'history']);
+            Route::post('/hr/requests/{documentRequest}/decision', [HrVerificationController::class, 'decide']);
+
             Route::apiResource('departments', DepartmentController::class);
             Route::apiResource('positions', PositionController::class);
             Route::get('/employees/managers', [EmployeeController::class, 'managers']);
