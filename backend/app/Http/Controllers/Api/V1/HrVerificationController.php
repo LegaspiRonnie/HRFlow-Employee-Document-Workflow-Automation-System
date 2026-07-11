@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Documents\DecisionRequest;
 use App\Http\Resources\DocumentRequestResource;
 use App\Models\DocumentRequest;
+use App\Notifications\DocumentReady;
+use App\Notifications\RequestStageUpdated;
 use App\Services\DocumentGeneratorService;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
@@ -56,7 +58,7 @@ class HrVerificationController extends Controller
 
         // Decision, status flip, AND PDF generation are one atomic unit:
         // a request is never "completed" without its document existing.
-        DB::transaction(function () use ($request, $documentRequest, $verify) {
+        $generated = DB::transaction(function () use ($request, $documentRequest, $verify) {
             $documentRequest->approvals()->create([
                 'approver_id' => $request->user()->id,
                 'stage' => 'hr',
@@ -68,10 +70,20 @@ class HrVerificationController extends Controller
                 'status' => $verify ? RequestStatus::Completed : RequestStatus::HrRejected,
             ]);
 
-            if ($verify) {
-                $this->generator->generate($documentRequest, $request->user());
-            }
+            return $verify ? $this->generator->generate($documentRequest, $request->user()) : null;
         });
+
+        // notify the employee: stage update always, plus the PDF itself on verify
+        $owner = $documentRequest->employee->user;
+        $owner->notify(new RequestStageUpdated(
+            $documentRequest->loadMissing('documentType'),
+            'hr',
+            $verify ? 'approved' : 'rejected',
+            $request->validated('comments'),
+        ));
+        if ($generated) {
+            $owner->notify(new DocumentReady($generated->load('documentRequest.documentType')));
+        }
 
         return new DocumentRequestResource($documentRequest->fresh(self::RELATIONS));
     }

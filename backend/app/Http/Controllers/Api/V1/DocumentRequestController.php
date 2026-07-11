@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Documents\StoreDocumentRequestRequest;
 use App\Http\Resources\DocumentRequestResource;
 use App\Models\DocumentRequest;
+use App\Notifications\RequestSubmitted;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -52,6 +53,11 @@ class DocumentRequestController extends Controller
             // serializes correctly in the 201 response
             'status' => RequestStatus::PendingManager,
         ]);
+
+        // ping the approving manager that their queue has a new item
+        $employee->manager?->notify(
+            new RequestSubmitted($documentRequest->load(['employee.user', 'documentType'])),
+        );
 
         return (new DocumentRequestResource($documentRequest->load('documentType')))
             ->response()->setStatusCode(201);

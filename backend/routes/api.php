@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\V1\GeneratedDocumentController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\HrVerificationController;
 use App\Http\Controllers\Api\V1\ManagerApprovalController;
+use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\PositionController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -53,6 +54,11 @@ Route::prefix('v1')->group(function () {
 
         // ── Document download (Feature 9) — owner or HR (checked in controller) ──
         Route::get('/documents/{generatedDocument}/download', [GeneratedDocumentController::class, 'download']);
+
+        // ── Notification center (Feature 10) — any authenticated role ──
+        Route::get('/notifications', [NotificationController::class, 'index']);
+        Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead']);
+        Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead']);
 
         // ── Manager review stage (Feature 7) ──
         Route::middleware('role:manager,hr_admin')->prefix('manager')->group(function () {
