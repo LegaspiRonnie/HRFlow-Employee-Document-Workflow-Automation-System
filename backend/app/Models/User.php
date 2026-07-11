@@ -33,6 +33,12 @@ class User extends Authenticatable
         ];
     }
 
+    /** The employee record backing this login (null until HR creates one). */
+    public function employee(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Employee::class);
+    }
+
     /** Convenience helpers used by middleware, Policies, and Blade later. */
     public function isEmployee(): bool
     {

@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\DepartmentController;
+use App\Http\Controllers\Api\V1\EmployeeController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\PositionController;
+use App\Http\Controllers\Api\V1\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -28,10 +30,16 @@ Route::prefix('v1')->group(function () {
         Route::post('/auth/logout', [AuthController::class, 'logout']);
         Route::get('/auth/me', [AuthController::class, 'me']);
 
-        // ── HR-admin-only management (Feature 3) ──
+        // ── Own profile (Feature 4) — any authenticated role ──
+        Route::get('/profile', [ProfileController::class, 'show']);
+        Route::put('/profile', [ProfileController::class, 'update']);
+
+        // ── HR-admin-only management (Features 3-4) ──
         Route::middleware('role:hr_admin')->group(function () {
             Route::apiResource('departments', DepartmentController::class);
             Route::apiResource('positions', PositionController::class);
+            Route::get('/employees/managers', [EmployeeController::class, 'managers']);
+            Route::apiResource('employees', EmployeeController::class);
         });
     });
 });
