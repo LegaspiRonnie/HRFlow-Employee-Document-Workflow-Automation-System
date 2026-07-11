@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Documents\DecisionRequest;
 use App\Http\Resources\DocumentRequestResource;
 use App\Models\DocumentRequest;
+use App\Services\DocumentGeneratorService;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 
@@ -17,7 +18,11 @@ use Illuminate\Support\Facades\DB;
  */
 class HrVerificationController extends Controller
 {
-    private const RELATIONS = ['documentType', 'employee.user', 'employee.department', 'employee.position', 'approvals.approver'];
+    private const RELATIONS = ['documentType', 'employee.user', 'employee.department', 'employee.position', 'approvals.approver', 'generatedDocument'];
+
+    public function __construct(private readonly DocumentGeneratorService $generator)
+    {
+    }
 
     /** GET /hr/verifications — manager-approved requests awaiting HR. */
     public function queue(): AnonymousResourceCollection
@@ -49,6 +54,8 @@ class HrVerificationController extends Controller
 
         $verify = $request->validated('action') === 'approve';
 
+        // Decision, status flip, AND PDF generation are one atomic unit:
+        // a request is never "completed" without its document existing.
         DB::transaction(function () use ($request, $documentRequest, $verify) {
             $documentRequest->approvals()->create([
                 'approver_id' => $request->user()->id,
@@ -60,7 +67,29 @@ class HrVerificationController extends Controller
             $documentRequest->update([
                 'status' => $verify ? RequestStatus::Completed : RequestStatus::HrRejected,
             ]);
+
+            if ($verify) {
+                $this->generator->generate($documentRequest, $request->user());
+            }
         });
+
+        return new DocumentRequestResource($documentRequest->fresh(self::RELATIONS));
+    }
+
+    /**
+     * POST /hr/requests/{documentRequest}/regenerate — new PDF version
+     * (e.g. after a template fix). Keeps the document number, bumps the
+     * version; old files remain on disk as the version history.
+     */
+    public function regenerate(\Illuminate\Http\Request $request, DocumentRequest $documentRequest): DocumentRequestResource
+    {
+        abort_unless(
+            $documentRequest->status === RequestStatus::Completed,
+            409,
+            'Only completed requests can be regenerated.',
+        );
+
+        $this->generator->generate($documentRequest, $request->user());
 
         return new DocumentRequestResource($documentRequest->fresh(self::RELATIONS));
     }

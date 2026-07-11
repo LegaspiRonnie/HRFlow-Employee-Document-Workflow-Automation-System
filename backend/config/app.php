@@ -15,6 +15,10 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    // HRFlow: SPA origin (QR verification links) and letterhead company name
+    'frontend_url' => env('FRONTEND_URL', 'http://localhost:5173'),
+    'company_name' => env('COMPANY_NAME', 'HRFlow Corporation'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

@@ -5,6 +5,7 @@ import AppLayout from './layouts/AppLayout'
 import DashboardPage from './pages/DashboardPage'
 import LoginPage from './pages/LoginPage'
 import ProfilePage from './pages/ProfilePage'
+import VerifyPage from './pages/VerifyPage'
 import ManagerQueuePage from './pages/manager/ManagerQueuePage'
 import TeamHistoryPage from './pages/manager/TeamHistoryPage'
 import MyRequestsPage from './pages/requests/MyRequestsPage'
@@ -29,6 +30,7 @@ function App() {
     <Routes>
       {/* Public */}
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/verify/:token" element={<VerifyPage />} />
 
       {/* Signed-in app */}
       <Route element={<ProtectedRoute />}>

@@ -21,6 +21,8 @@ class DocumentRequestResource extends JsonResource
             'employee' => new EmployeeResource($this->whenLoaded('employee')),
             // decision trail, chronological
             'approvals' => RequestApprovalResource::collection($this->whenLoaded('approvals')),
+            // latest generated PDF metadata (Feature 9)
+            'generated_document' => new GeneratedDocumentResource($this->whenLoaded('generatedDocument')),
             'created_at' => $this->resource->created_at->toIso8601String(),
             'updated_at' => $this->resource->updated_at->toIso8601String(),
         ];
