@@ -16,7 +16,7 @@ class DepartmentController extends Controller
     public function index(): AnonymousResourceCollection
     {
         return DepartmentResource::collection(
-            Department::withCount('positions')->orderBy('name')->get(),
+            Department::withCount(['positions', 'employees'])->orderBy('name')->get(),
         );
     }
 
@@ -29,7 +29,7 @@ class DepartmentController extends Controller
 
     public function show(Department $department): DepartmentResource
     {
-        return new DepartmentResource($department->loadCount('positions'));
+        return new DepartmentResource($department->loadCount(['positions', 'employees']));
     }
 
     public function update(DepartmentRequest $request, Department $department): DepartmentResource

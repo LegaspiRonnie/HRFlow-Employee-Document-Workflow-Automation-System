@@ -4,7 +4,9 @@ import RoleRoute from './components/RoleRoute'
 import AppLayout from './layouts/AppLayout'
 import DashboardPage from './pages/DashboardPage'
 import LoginPage from './pages/LoginPage'
+import ProfilePage from './pages/ProfilePage'
 import DepartmentsPage from './pages/hr/DepartmentsPage'
+import EmployeesPage from './pages/hr/EmployeesPage'
 import PositionsPage from './pages/hr/PositionsPage'
 
 /**
@@ -26,6 +28,7 @@ function App() {
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
 
           {/* Manager area (HR admins may also review team requests) */}
           <Route element={<RoleRoute roles={['manager', 'hr_admin']} />}>
@@ -34,6 +37,7 @@ function App() {
 
           {/* HR-only area */}
           <Route element={<RoleRoute roles={['hr_admin']} />}>
+            <Route path="/hr/employees" element={<EmployeesPage />} />
             <Route path="/hr/departments" element={<DepartmentsPage />} />
             <Route path="/hr/positions" element={<PositionsPage />} />
           </Route>

@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UserSeeder::class,       // Feature 1: demo user per role
             DepartmentSeeder::class, // Feature 3: departments + positions
+            EmployeeSeeder::class,   // Feature 4: employee records + extra staff
         ]);
     }
 }
