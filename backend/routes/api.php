@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\DocumentRequestController;
 use App\Http\Controllers\Api\V1\DocumentTypeController;
 use App\Http\Controllers\Api\V1\EmployeeController;
 use App\Http\Controllers\Api\V1\HealthController;
+use App\Http\Controllers\Api\V1\ManagerApprovalController;
 use App\Http\Controllers\Api\V1\PositionController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -43,6 +44,13 @@ Route::prefix('v1')->group(function () {
         Route::get('/requests', [DocumentRequestController::class, 'index']);
         Route::post('/requests', [DocumentRequestController::class, 'store']);
         Route::get('/requests/{documentRequest}', [DocumentRequestController::class, 'show']);
+
+        // ── Manager review stage (Feature 7) ──
+        Route::middleware('role:manager,hr_admin')->prefix('manager')->group(function () {
+            Route::get('/queue', [ManagerApprovalController::class, 'queue']);
+            Route::get('/history', [ManagerApprovalController::class, 'history']);
+            Route::post('/requests/{documentRequest}/decision', [ManagerApprovalController::class, 'decide']);
+        });
 
         // ── HR-admin-only management (Features 3-4) ──
         Route::middleware('role:hr_admin')->group(function () {

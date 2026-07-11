@@ -18,7 +18,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 class DocumentRequestController extends Controller
 {
     /** Relations shipped to the tracking page. */
-    private const RELATIONS = ['documentType'];
+    private const RELATIONS = ['documentType', 'approvals.approver'];
 
     /** GET /requests — the signed-in user's own requests, newest first. */
     public function index(Request $request): AnonymousResourceCollection
