@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\DepartmentController;
 use App\Http\Controllers\Api\V1\HealthController;
+use App\Http\Controllers\Api\V1\PositionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,5 +27,11 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/auth/logout', [AuthController::class, 'logout']);
         Route::get('/auth/me', [AuthController::class, 'me']);
+
+        // ── HR-admin-only management (Feature 3) ──
+        Route::middleware('role:hr_admin')->group(function () {
+            Route::apiResource('departments', DepartmentController::class);
+            Route::apiResource('positions', PositionController::class);
+        });
     });
 });
