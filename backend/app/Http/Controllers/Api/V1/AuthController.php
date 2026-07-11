@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Services\AuditLogger;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -30,8 +31,11 @@ class AuthController extends Controller
             ]);
         }
 
+        $token = $user->createToken('hrflow-spa')->plainTextToken;
+        AuditLogger::log('auth.login', $user);
+
         return response()->json([
-            'token' => $user->createToken('hrflow-spa')->plainTextToken,
+            'token' => $token,
             'user' => new UserResource($user),
         ]);
     }
@@ -43,6 +47,7 @@ class AuthController extends Controller
      */
     public function logout(Request $request): JsonResponse
     {
+        AuditLogger::log('auth.logout', $request->user());
         $request->user()->currentAccessToken()->delete();
 
         return response()->json(['message' => 'Logged out.']);

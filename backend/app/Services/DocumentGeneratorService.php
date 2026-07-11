@@ -75,7 +75,7 @@ class DocumentGeneratorService
         $filePath = sprintf('documents/%s-v%d-%s.pdf', $documentNumber, $version, Str::random(8));
         Storage::disk('local')->put($filePath, $pdf->output());
 
-        return GeneratedDocument::create([
+        $record = GeneratedDocument::create([
             'document_request_id' => $request->id,
             'document_number' => $documentNumber,
             'version' => $version,
@@ -85,6 +85,13 @@ class DocumentGeneratorService
             'signed_by' => $signedBy->name,
             'expires_at' => $issuedAt->copy()->addMonths(self::VALIDITY_MONTHS),
         ]);
+
+        AuditLogger::log('document.generated', $record, [
+            'number' => $documentNumber,
+            'version' => $version,
+        ]);
+
+        return $record;
     }
 
     /** Fill the type's HTML template with this employee's real data. */

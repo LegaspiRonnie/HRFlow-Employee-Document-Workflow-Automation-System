@@ -11,6 +11,7 @@ import ManagerQueuePage from './pages/manager/ManagerQueuePage'
 import TeamHistoryPage from './pages/manager/TeamHistoryPage'
 import MyRequestsPage from './pages/requests/MyRequestsPage'
 import RequestFormPage from './pages/requests/RequestFormPage'
+import AuditLogsPage from './pages/hr/AuditLogsPage'
 import DepartmentsPage from './pages/hr/DepartmentsPage'
 import EmployeesPage from './pages/hr/EmployeesPage'
 import HrVerificationsPage from './pages/hr/HrVerificationsPage'
@@ -57,6 +58,7 @@ function App() {
             <Route path="/hr/positions" element={<PositionsPage />} />
             <Route path="/hr/templates" element={<TemplatesPage />} />
             <Route path="/hr/reports" element={<ReportsPage />} />
+            <Route path="/hr/audit-logs" element={<AuditLogsPage />} />
           </Route>
         </Route>
       </Route>

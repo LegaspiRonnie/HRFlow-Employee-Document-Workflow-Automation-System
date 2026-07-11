@@ -8,6 +8,7 @@ use App\Http\Requests\Employees\UpdateEmployeeRequest;
 use App\Http\Resources\EmployeeResource;
 use App\Models\Employee;
 use App\Models\User;
+use App\Services\AuditLogger;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -75,6 +76,8 @@ class EmployeeController extends Controller
             ]);
         });
 
+        AuditLogger::log('employee.created', $employee, ['email' => $data['email']]);
+
         return (new EmployeeResource($employee->load(self::RELATIONS)))
             ->response()->setStatusCode(201);
     }
@@ -111,6 +114,8 @@ class EmployeeController extends Controller
             ]);
         });
 
+        AuditLogger::log('employee.updated', $employee);
+
         return new EmployeeResource($employee->fresh(self::RELATIONS));
     }
 
@@ -125,6 +130,8 @@ class EmployeeController extends Controller
                 'message' => 'Cannot delete: this employee has document history. Set them to inactive instead.',
             ], 409);
         }
+
+        AuditLogger::log('employee.deleted', $employee);
 
         return response()->json(['message' => 'Employee deleted.']);
     }
