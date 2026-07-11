@@ -1,6 +1,8 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { sectionsForRole } from '../lib/navigation'
+import * as notificationsApi from '../services/notifications'
 import { ROLE_LABELS } from '../types/auth'
 
 /**
@@ -11,6 +13,26 @@ import { ROLE_LABELS } from '../types/auth'
 export default function AppLayout() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const [unread, setUnread] = useState(0)
+
+  // refresh the bell badge on every navigation + every 60s
+  useEffect(() => {
+    let cancelled = false
+    const refresh = () =>
+      notificationsApi
+        .listNotifications()
+        .then((feed) => {
+          if (!cancelled) setUnread(feed.unread_count)
+        })
+        .catch(() => undefined)
+    refresh()
+    const timer = window.setInterval(refresh, 60_000)
+    return () => {
+      cancelled = true
+      window.clearInterval(timer)
+    }
+  }, [location.pathname])
 
   if (!user) return null // guarded upstream by ProtectedRoute
 
@@ -61,6 +83,20 @@ export default function AppLayout() {
       {/* ── Main column ── */}
       <div className="flex-1 flex flex-col min-w-0">
         <header className="h-14 bg-white border-b border-slate-200 flex items-center justify-end gap-4 px-6">
+          {/* notification bell with unread badge */}
+          <Link
+            to="/notifications"
+            className="relative rounded-full p-2 text-slate-500 hover:bg-slate-100"
+            aria-label={`Notifications (${unread} unread)`}
+            title="Notifications"
+          >
+            <span className="text-lg leading-none">🔔</span>
+            {unread > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                {unread > 9 ? '9+' : unread}
+              </span>
+            )}
+          </Link>
           <div className="text-right">
             <p className="text-sm font-medium text-slate-800 leading-tight">{user.name}</p>
             <p className="text-[11px] text-slate-500">{ROLE_LABELS[user.role]}</p>

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Documents\DecisionRequest;
 use App\Http\Resources\DocumentRequestResource;
 use App\Models\DocumentRequest;
+use App\Notifications\RequestStageUpdated;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
@@ -79,6 +80,14 @@ class ManagerApprovalController extends Controller
                 'status' => $approve ? RequestStatus::PendingHr : RequestStatus::ManagerRejected,
             ]);
         });
+
+        // tell the employee their request moved (or bounced)
+        $documentRequest->employee->user->notify(new RequestStageUpdated(
+            $documentRequest->loadMissing('documentType'),
+            'manager',
+            $approve ? 'approved' : 'rejected',
+            $request->validated('comments'),
+        ));
 
         return new DocumentRequestResource($documentRequest->fresh(self::RELATIONS));
     }

@@ -4,6 +4,7 @@ import RoleRoute from './components/RoleRoute'
 import AppLayout from './layouts/AppLayout'
 import DashboardPage from './pages/DashboardPage'
 import LoginPage from './pages/LoginPage'
+import NotificationsPage from './pages/NotificationsPage'
 import ProfilePage from './pages/ProfilePage'
 import VerifyPage from './pages/VerifyPage'
 import ManagerQueuePage from './pages/manager/ManagerQueuePage'
@@ -37,6 +38,7 @@ function App() {
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/requests" element={<MyRequestsPage />} />
           <Route path="/requests/new" element={<RequestFormPage />} />
 

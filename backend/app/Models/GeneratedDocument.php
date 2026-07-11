@@ -8,13 +8,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
     'document_request_id', 'document_number', 'version', 'file_path',
-    'verification_token', 'signature_hash', 'signed_by', 'expires_at',
+    'verification_token', 'signature_hash', 'signed_by', 'expires_at', 'reminded_at',
 ])]
 class GeneratedDocument extends Model
 {
     protected function casts(): array
     {
-        return ['expires_at' => 'date'];
+        return ['expires_at' => 'date', 'reminded_at' => 'datetime'];
     }
 
     public function documentRequest(): BelongsTo
