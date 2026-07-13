@@ -1,0 +1,26 @@
+# HRFlow API — Railway image: one container that serves HTTP on $PORT itself.
+# (The plain ./Dockerfile is php-fpm for the nginx-fronted docker-compose stack.)
+FROM php:8.4-cli-alpine
+
+# System deps + PHP extensions Laravel/DomPDF/Laravel-Excel need
+RUN apk add --no-cache libpng-dev libjpeg-turbo-dev freetype-dev libzip-dev icu-dev oniguruma-dev sqlite-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo_mysql pdo_sqlite bcmath gd zip intl opcache
+
+# Composer from the official image
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /app
+
+# Install dependencies first (cached layer while code changes)
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-autoloader --no-scripts --no-interaction
+
+# App code, then finish the autoloader
+COPY . .
+RUN composer dump-autoload --optimize
+
+# artisan serve honours this: number of built-in-server worker processes
+ENV PHP_CLI_SERVER_WORKERS=4
+
+CMD ["sh", "railway-start.sh"]

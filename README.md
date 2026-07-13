@@ -101,6 +101,60 @@ To see real inboxes, point the `MAIL_*` vars in `backend/.env` at
 [Mailtrap](https://mailtrap.io): `MAIL_MAILER=smtp`,
 `MAIL_HOST=sandbox.smtp.mailtrap.io`, `MAIL_PORT=2525` + your credentials.
 
+## Option C — Deploy to Railway (API) + Vercel (SPA)
+
+The repo ships deploy configs for a split deployment:
+`backend/railway.json` + `backend/Dockerfile.railway` (single container that
+serves HTTP on `$PORT`, runs migrations on boot) and `frontend/vercel.json`
+(SPA rewrites).
+
+**1. Backend on [Railway](https://railway.com):**
+
+1. New project → *Deploy from GitHub repo* → set **Root Directory** to `backend`.
+2. Add a **MySQL** database service to the same project.
+3. Add a **Volume** to the backend service, mounted at `/app/storage`
+   (generated PDFs must survive redeploys).
+4. Set the service variables:
+
+   ```bash
+   APP_NAME=HRFlow
+   APP_ENV=production
+   APP_DEBUG=false
+   APP_KEY=                # run locally: php artisan key:generate --show
+   APP_URL=https://<your-railway-domain>
+   FRONTEND_URL=https://<your-vercel-domain>   # fill in after step 2 below
+   COMPANY_NAME="HRFlow Corporation"
+   LOG_CHANNEL=stderr
+   DB_CONNECTION=mysql
+   DB_HOST=${{MySQL.MYSQLHOST}}
+   DB_PORT=${{MySQL.MYSQLPORT}}
+   DB_DATABASE=${{MySQL.MYSQLDATABASE}}
+   DB_USERNAME=${{MySQL.MYSQLUSER}}
+   DB_PASSWORD=${{MySQL.MYSQLPASSWORD}}
+   SESSION_DRIVER=database
+   CACHE_STORE=database
+   QUEUE_CONNECTION=sync   # emails/notifications sent inline — no worker needed
+   MAIL_MAILER=log         # or point MAIL_* at a real SMTP provider
+   ```
+
+5. Generate a public domain for the service (Settings → Networking), then put
+   it in `APP_URL`.
+6. To load the demo data once: set `DEPLOY_SEED=1`, redeploy, then remove it.
+
+**2. Frontend on [Vercel](https://vercel.com):**
+
+1. Import the GitHub repo → set **Root Directory** to `frontend`
+   (framework preset: Vite).
+2. Add one environment variable:
+   `VITE_API_URL=https://<your-railway-domain>/api/v1`
+3. Deploy, then copy the production domain into `FRONTEND_URL` on Railway and
+   redeploy the backend — this fixes CORS, email links, and the QR-code
+   verification URLs baked into generated PDFs.
+
+Optional: daily document-expiration reminders need the scheduler — add a
+second Railway service from the same repo/root with the custom start command
+`php artisan schedule:work` and the same variables.
+
 ## API overview
 
 All endpoints live under `/api/v1`. Highlights:
