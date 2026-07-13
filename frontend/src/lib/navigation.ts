@@ -3,6 +3,8 @@ import type { Role } from '../types/auth'
 export interface NavItem {
   label: string
   to: string
+  /** Icon name resolved by <Icon /> (components/icons.tsx). */
+  icon: string
   /** Which roles see this item in the sidebar. */
   roles: Role[]
 }
@@ -22,35 +24,35 @@ export const NAV_SECTIONS: NavSection[] = [
   {
     title: 'General',
     items: [
-      { label: 'Dashboard', to: '/dashboard', roles: ALL },
-      { label: 'My Profile', to: '/profile', roles: ALL },
-      { label: 'Notifications', to: '/notifications', roles: ALL },
+      { label: 'Dashboard', to: '/dashboard', icon: 'home', roles: ALL },
+      { label: 'My Profile', to: '/profile', icon: 'user', roles: ALL },
+      { label: 'Notifications', to: '/notifications', icon: 'bell', roles: ALL },
     ],
   },
   {
     title: 'Documents',
     items: [
-      { label: 'Request Document', to: '/requests/new', roles: ALL },
-      { label: 'My Requests', to: '/requests', roles: ALL },
+      { label: 'Request Document', to: '/requests/new', icon: 'document-plus', roles: ALL },
+      { label: 'My Requests', to: '/requests', icon: 'document-text', roles: ALL },
     ],
   },
   {
     title: 'Manager',
     items: [
-      { label: 'Approval Queue', to: '/manager/queue', roles: ['manager', 'hr_admin'] },
-      { label: 'Team History', to: '/manager/history', roles: ['manager', 'hr_admin'] },
+      { label: 'Approval Queue', to: '/manager/queue', icon: 'inbox', roles: ['manager', 'hr_admin'] },
+      { label: 'Team History', to: '/manager/history', icon: 'clock', roles: ['manager', 'hr_admin'] },
     ],
   },
   {
     title: 'HR Administration',
     items: [
-      { label: 'HR Verification', to: '/hr/verifications', roles: ['hr_admin'] },
-      { label: 'Employees', to: '/hr/employees', roles: ['hr_admin'] },
-      { label: 'Departments', to: '/hr/departments', roles: ['hr_admin'] },
-      { label: 'Positions', to: '/hr/positions', roles: ['hr_admin'] },
-      { label: 'Templates', to: '/hr/templates', roles: ['hr_admin'] },
-      { label: 'Reports', to: '/hr/reports', roles: ['hr_admin'] },
-      { label: 'Audit Logs', to: '/hr/audit-logs', roles: ['hr_admin'] },
+      { label: 'HR Verification', to: '/hr/verifications', icon: 'check-badge', roles: ['hr_admin'] },
+      { label: 'Employees', to: '/hr/employees', icon: 'users', roles: ['hr_admin'] },
+      { label: 'Departments', to: '/hr/departments', icon: 'building', roles: ['hr_admin'] },
+      { label: 'Positions', to: '/hr/positions', icon: 'briefcase', roles: ['hr_admin'] },
+      { label: 'Templates', to: '/hr/templates', icon: 'document-duplicate', roles: ['hr_admin'] },
+      { label: 'Reports', to: '/hr/reports', icon: 'chart-bar', roles: ['hr_admin'] },
+      { label: 'Audit Logs', to: '/hr/audit-logs', icon: 'shield-check', roles: ['hr_admin'] },
     ],
   },
 ]
