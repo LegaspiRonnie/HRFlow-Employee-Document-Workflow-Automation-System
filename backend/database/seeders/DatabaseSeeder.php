@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             DepartmentSeeder::class, // Feature 3: departments + positions
             EmployeeSeeder::class,   // Feature 4: employee records + extra staff
             DocumentTypeSeeder::class, // Feature 5: 10 document types + templates
+            DemoDataSeeder::class,   // Bulk demo org + 6 months of request history
         ]);
     }
 }
