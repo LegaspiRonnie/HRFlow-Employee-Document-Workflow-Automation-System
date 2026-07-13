@@ -13,6 +13,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Deployed behind a TLS-terminating proxy (Railway/nginx) — trust it
+        // so url()/asset() generate https and the client IP is the real one.
+        $middleware->trustProxies(at: '*');
+
         // 'role:manager,hr_admin' style RBAC guard used across routes/api.php
         $middleware->alias([
             'role' => \App\Http\Middleware\EnsureRole::class,
