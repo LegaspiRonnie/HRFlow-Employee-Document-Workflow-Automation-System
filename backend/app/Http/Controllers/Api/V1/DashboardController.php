@@ -84,8 +84,11 @@ class DashboardController extends Controller
         $all = DocumentRequest::query();
 
         // average hours from submission to completion (HR verified)
+        $hoursExpr = DB::connection()->getDriverName() === 'sqlite'
+            ? '(julianday(updated_at) - julianday(created_at)) * 24'
+            : 'timestampdiff(HOUR, created_at, updated_at)';
         $avgHours = DocumentRequest::where('status', RequestStatus::Completed)
-            ->select(DB::raw('avg(timestampdiff(HOUR, created_at, updated_at)) as avg_hours'))
+            ->select(DB::raw("avg($hoursExpr) as avg_hours"))
             ->value('avg_hours');
 
         return [
@@ -111,9 +114,12 @@ class DashboardController extends Controller
     /** Requests per month for the last 6 months (inclusive of empty months). */
     private function monthlyTrend(Builder $query): array
     {
+        $ymExpr = DB::connection()->getDriverName() === 'sqlite'
+            ? "strftime('%Y-%m', created_at)"
+            : "date_format(created_at, '%Y-%m')";
         $raw = $query
             ->where('created_at', '>=', now()->subMonths(5)->startOfMonth())
-            ->select(DB::raw("date_format(created_at, '%Y-%m') as ym"), DB::raw('count(*) as count'))
+            ->select(DB::raw("$ymExpr as ym"), DB::raw('count(*) as count'))
             ->groupBy('ym')
             ->pluck('count', 'ym');
 
