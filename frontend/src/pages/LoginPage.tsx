@@ -212,20 +212,29 @@ export default function LoginPage() {
               </span>
               <span className="h-px flex-1 bg-slate-200" />
             </div>
-            <div className="mt-4 grid grid-cols-3 gap-2">
+            <div className="mt-4 space-y-2">
               {DEMO_ACCOUNTS.map((account) => (
                 <button
                   key={account.email}
                   type="button"
                   onClick={() => fillDemo(account.email)}
-                  className="rounded-lg border border-slate-200 bg-white px-2 py-2 text-xs font-medium text-slate-600 shadow-sm transition-colors hover:border-indigo-300 hover:text-indigo-700"
+                  className="group flex w-full items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2 text-left shadow-sm transition-colors hover:border-indigo-300"
                 >
-                  {account.label}
+                  <span>
+                    <span className="block text-xs font-semibold text-slate-700 group-hover:text-indigo-700">
+                      {account.label}
+                    </span>
+                    <span className="block text-xs text-slate-400">{account.email}</span>
+                  </span>
+                  <span className="text-[11px] font-medium text-indigo-600 opacity-0 transition-opacity group-hover:opacity-100">
+                    Use →
+                  </span>
                 </button>
               ))}
             </div>
             <p className="mt-2 text-center text-[11px] text-slate-400">
-              Click a role to fill the form, then sign in.
+              Click an account to fill the form — the password for all three is{' '}
+              <code className="rounded bg-slate-100 px-1 py-0.5 font-mono text-slate-500">password</code>.
             </p>
           </div>
         </div>
