@@ -111,9 +111,11 @@ serves HTTP on `$PORT`, runs migrations on boot) and `frontend/vercel.json`
 **1. Backend on [Railway](https://railway.com):**
 
 1. New project → *Deploy from GitHub repo* → set **Root Directory** to `backend`.
-2. Add a **MySQL** database service to the same project.
+2. Add a **MySQL** database service to the same project — or skip this and use
+   SQLite (single-service setup): `DB_CONNECTION=sqlite` +
+   `DB_DATABASE=/app/storage/app/database.sqlite` instead of the `DB_*` vars below.
 3. Add a **Volume** to the backend service, mounted at `/app/storage`
-   (generated PDFs must survive redeploys).
+   (generated PDFs — and the SQLite file, if used — must survive redeploys).
 4. Set the service variables:
 
    ```bash

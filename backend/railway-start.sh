@@ -9,6 +9,13 @@ mkdir -p storage/app/private \
          storage/framework/views \
          storage/logs
 
+# SQLite: the DB file must live on the volume (e.g. /app/storage/app/database.sqlite)
+# so it survives redeploys — create it up front or migrate would fail.
+if [ "$DB_CONNECTION" = "sqlite" ] && [ -n "$DB_DATABASE" ]; then
+    mkdir -p "$(dirname "$DB_DATABASE")"
+    touch "$DB_DATABASE"
+fi
+
 php artisan config:cache
 php artisan migrate --force
 
